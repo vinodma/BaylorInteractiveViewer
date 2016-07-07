@@ -1,7 +1,7 @@
 ## ui.R ##
 library(DT)
 library(shiny)
-#library(plotly)
+library(plotly)
 library(shinydashboard)
 
 
