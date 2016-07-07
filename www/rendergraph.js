@@ -18,11 +18,13 @@
                             if (k == "id") {
 								elems = v.split(",")
                                 s.graph.nodes().forEach(function(node, i, a) {
+									node.color = node.originalcolor;
 									for (var ix = 0; ix < elems.length; ix++) {
 										elem = elems[ix];
                                     if (node.id == elem) {
                                         node.color = "#FFD700";
-                                    } 
+                                    }
+									
 								}
 								searchelm=elems;
                                 });
@@ -61,8 +63,13 @@
 								if(searchelm!=""){
 								for (var ix = 0; ix < searchelm.length; ix++) {
 									elem = searchelm[ix];
-									if (node.id == elem) 
+									if (node.id == elem){ 
                                     	node.color = "#FFD700";
+									}
+									else
+									{
+										node.color = node.originalcolor;
+									} 
                                 }
 							}
                             });
@@ -92,7 +99,7 @@
                             // action if we click on a node
                             new_s.bind('clickNode', function(e) {
                                 window.console.log(e.type, e.data.node.label, e.data.captor);
-                                Shiny.onInputChange("comm_id", e.data.node.label);
+                                Shiny.onInputChange("comm_id", e.data.node.comm_id);
                             });
                             s = new_s;
                         });

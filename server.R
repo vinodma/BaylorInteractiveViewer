@@ -1,7 +1,7 @@
 library(DT)
 library(shiny)
 library(igraph)
-library(plotly)
+#library(plotly)
 library(rstackdeque)
 library(jsonlite)
 
@@ -16,6 +16,8 @@ communities <- get_communities(graph)
 htmlloaded = FALSE
 s1 <- rstack()
 s2 <-rstack()
+
+
 
 function(input, output, session){ 
   global <- reactiveValues()
@@ -49,7 +51,7 @@ function(input, output, session){
     if (global$is_comm_graph){
       ii<-1
       for(elm in unlist(searchelm)){
-        
+        print(elm)
         memcomm[ii] <-  communities$membership[which(elm== V(graph)$name)]
         ii<-ii+1
       }
@@ -100,7 +102,7 @@ function(input, output, session){
         return()
       
       searchelm=input$searchentitiy
-      
+      memcomm <- NULL
       if (global$is_comm_graph){
         ii<-1
         for(elm in unlist(searchelm)){
@@ -129,7 +131,7 @@ function(input, output, session){
     data <- peek_top(global$viz_stack)    
     graph <- data[[1]]
     communities <- data[[2]]
-    
+    print(global$is_comm_graph)
     # Try and apply community detection if there are a lot of nodes to visualize
     #print(vcount(graph))
     #print(conf$community_threshold)
@@ -148,9 +150,13 @@ function(input, output, session){
     # Remove nodes we aren't we don't want that type of node    
     dellist <- c()
     indx <- 1
-    print(input$interactions)
+    if(input$interactions == "all")
+      return(list(graph, FALSE))
+    
     for(nd in V(graph)){
+      
       atr <- get.vertex.attribute(graph,"type",nd)
+      print(atr)
       if(grepl(atr,input$interactions) == FALSE){
         dellist[indx] <- nd
         indx <- indx+1
@@ -220,4 +226,27 @@ function(input, output, session){
     return(paste(c("Current Community", name)))
   })
   
+  output$pathway_distribution <- renderPlot({
+   # if(global$is_comm_graph == TRUE){
+      data <- peek_top(global$viz_stack)
+      graph <- data[[1]]
+      communities<-data[[2]]
+      labellist <- lapply(communities(communities),len)
+      rawlabels <- unlist(lapply(labellist,unlist))
+      #print(rawlabels)
+      labelfreq <- table(rawlabels)
+      #lf <- order(labelfreq)[1:10]
+      lf <- labelfreq[order(labelfreq,decreasing = T)[1:5]]
+      others_cnt <- sum(labelfreq) - sum(lf)
+      lf["OTHERS"] <-others_cnt
+      pcts <- lapply(lf,function(z){round(100.0*z/sum(lf))})
+      pcts <- paste("(",pcts,"%",")",sep="")
+      lbls <- paste(pcts,names(lf))
+      return(pie(lf,labels = lbls))
+      #print(gsize(graph))
+      
+
+    #}
+    
+  })
 }
