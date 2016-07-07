@@ -1,7 +1,7 @@
 library(DT)
 library(shiny)
 library(igraph)
-#library(plotly)
+library(plotly)
 library(rstackdeque)
 library(jsonlite)
 
